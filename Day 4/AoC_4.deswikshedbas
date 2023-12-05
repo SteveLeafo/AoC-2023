@@ -1,0 +1,98 @@
+﻿'#Reference #Deswik.Common,               Culture=neutral,               PublicKeyToken=null, Path=<APPDIR>\Deswik.Common.dll, Version=1.5.2.0
+'#Reference #Deswik.Common.Controls,               Culture=neutral,               PublicKeyToken=null, Path=<APPDIR>\Deswik.Common.Controls.dll, Version=1.5.2.0
+'#Reference #Deswik.Common.Core,               Culture=neutral,               PublicKeyToken=null, Path=<APPDIR>\Deswik.Common.Core.dll, Version=1.5.2.0
+'#Reference #Deswik.Common.Dialogs,               Culture=neutral,               PublicKeyToken=null, Path=<APPDIR>\Deswik.Common.Dialogs.dll, Version=1.5.2.0
+'#Reference #System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL
+'#Reference #System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL
+'#Reference #Deswik.Common.Utilities,               Culture=neutral,               PublicKeyToken=null, Path=<APPDIR>\Deswik.Common.Utilities.dll, Version=1.5.2.0
+'#Language "WWB.NET"
+Imports Deswik.Scheduler.Engine
+Imports System.Collections.Generic
+Imports Deswik.Common.Utilities
+Imports System.IO
+
+Sub Main
+    Dim sum As Integer = 0
+    Dim copies As Dictionary(Of Integer, Integer) = New Dictionary(Of Integer, Integer)()
+    Dim values As Dictionary(Of Integer, Integer) = New Dictionary(Of Integer, Integer)()
+
+    For Each line As String In File.ReadAllLines("C:\Games\aoc_4.txt")
+        Dim winners As HashSet(Of Integer) = New HashSet(Of Integer)()
+        Dim mine As HashSet(Of Integer) = New HashSet(Of Integer)()
+        Dim temp As String() = line.Split(New Char() {","c, ";"c, ":"c, " "c})
+        Dim splits As New List(Of String)
+
+        For Each s As String In temp
+            If s <> "" Then
+                 splits.Add(s)
+            End If
+        Next
+        
+
+
+        Dim i As Integer = 2
+
+        While i < splits.Count
+
+            If splits(i) = "|" Then
+                i += 1
+                Exit While
+            End If
+
+            winners.Add(Integer.Parse(splits(i)))
+
+            i += 1
+        End While
+
+        While i < splits.Count
+            
+            If splits(i).Length > 0 Then
+                mine.Add(Integer.Parse(splits(i)))
+            End If
+            
+            i += 1
+        End While
+
+        Dim count As Integer = Intersect(winners, mine).Count()
+        Dim game As Integer = Integer.Parse(splits(1)) - 1
+        values(game) = count
+
+        If copies.ContainsKey(game) Then
+            copies(game) = copies(game) + 1
+        Else
+            copies(game) = 1
+        End If
+
+        For k As Integer = 0 To copies(game) - 1
+
+            For c As Integer = game + 1 To game + 1 + count - 1
+
+                If copies.ContainsKey(c) Then
+                    copies(c) = copies(c) + 1
+                Else
+                    copies(c) = 1
+                End If
+            Next
+        Next
+    Next
+
+    For Each v As Integer In copies.Values
+        sum = sum + v
+    Next
+
+    MsgBox sum.ToString()
+
+End Sub
+
+Function Intersect(a As HashSet(Of Integer), b As HashSet(Of Integer)) As HashSet(Of Integer)
+    
+   Dim intersection As HashSet(Of Integer) = New HashSet(Of Integer)()
+
+   For Each v As Integer In a
+       If (b.Contains(v)) Then
+           intersection.Add(v)
+       End If
+   Next
+
+   Return intersection
+End Function
